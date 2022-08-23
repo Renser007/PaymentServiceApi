@@ -5,12 +5,14 @@ import com.tinqin.api.base.Error;
 import com.tinqin.api.error.InvalidCardError;
 import com.tinqin.api.error.NoSuchPaymentError;
 import com.tinqin.api.error.PaymentUnavailableError;
+import com.tinqin.api.error.TransactionAlreadyFinishedError;
 import com.tinqin.api.model.ProcessPaymentRequest;
 import com.tinqin.api.model.ProcessPaymentResponse;
 import com.tinqin.api.operation.ProcessPaymentProcessor;
 import com.tinqin.core.exception.InvalidCardException;
 import com.tinqin.core.exception.NoSuchPaymentException;
 import com.tinqin.core.exception.PaymentUnavailableException;
+import com.tinqin.core.exception.TransactionAlreadyFinishedException;
 import com.tinqin.domain.data.entity.Payment;
 import com.tinqin.domain.data.repository.PaymentRepository;
 import com.tinqin.domain.data.repository.WalletRepository;
@@ -19,6 +21,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -45,8 +48,13 @@ public class ProcessPaymentProcessorCore implements ProcessPaymentProcessor {
             return Stream.of(walletRepository.getWalletByCardNumberAndCvc(input.getCardNumber(), input.getCvc())
                     .orElseThrow(InvalidCardException::new))
                     .map(w -> {
-                        final Payment payment = paymentRepository.getPaymentById(input.getId())
+                        final Payment payment = paymentRepository.getPaymentById(input.getUuid())
                                 .orElseThrow(NoSuchPaymentException::new);
+
+                        if (payment.getStatus().equals("Payment succeeded!")){
+                            throw new TransactionAlreadyFinishedException();
+                        }
+
                         final Double newAmount = w.getAmount() - payment.getCost();
 
                         w.setAmount(newAmount);
@@ -77,6 +85,9 @@ public class ProcessPaymentProcessorCore implements ProcessPaymentProcessor {
                     }
                     if (throwable instanceof PaymentUnavailableException){
                         return  new PaymentUnavailableError();
+                    }
+                    if (throwable instanceof TransactionAlreadyFinishedException){
+                        return new TransactionAlreadyFinishedError();
                     }
                     return new PaymentUnavailableError();
                 });

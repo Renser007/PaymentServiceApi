@@ -1,5 +1,6 @@
 package com.tinqin.core.processor;
 
+import antlr.StringUtils;
 import com.tinqin.api.base.Error;
 import com.tinqin.api.error.OpenPaymentError;
 import com.tinqin.api.model.OpenPaymentRequest;
@@ -9,6 +10,7 @@ import com.tinqin.domain.data.entity.Payment;
 import com.tinqin.domain.data.repository.PaymentRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -26,11 +28,11 @@ public class OpenPaymentProcessorCore implements OpenPaymentProcessor {
     public Either<Error, OpenPaymentResponse> process(final OpenPaymentRequest input) {
         return Try.of(()->{
 
-            final Payment payment = new Payment( UUID.randomUUID(), input.getCost(), "false");
+            final Payment payment = new Payment( RandomStringUtils.randomNumeric(10), input.getCost(), "false");
             paymentRepository.save(payment);
 
             return OpenPaymentResponse.builder()
-                    .id(payment.getId())
+                    .uuid(payment.getId().toString())
                     .build();
 
         }).toEither()
