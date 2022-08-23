@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProcessPaymentRequest implements OperationInput {
 
-    private UUID id;
+    private String uuid;
     private String cardNumber;
     private LocalDate expiryDate;
     private String cvc;

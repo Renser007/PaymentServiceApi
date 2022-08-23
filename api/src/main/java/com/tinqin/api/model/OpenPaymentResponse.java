@@ -12,6 +12,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OpenPaymentResponse implements OperationResult {
 
-    private UUID id;
+    private String uuid;
 
 }

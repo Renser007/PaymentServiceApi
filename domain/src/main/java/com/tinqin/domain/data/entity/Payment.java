@@ -16,13 +16,13 @@ import java.util.UUID;
 public class Payment {
 
     @Id
-    private UUID id;
+    private String id;
 
     private Double cost;
 
     private String status;
 
-    public Payment(UUID id, Double cost, String status) {
+    public Payment(String id, Double cost, String status) {
         this.id = id;
         this.cost = cost;
         this.status = status;
