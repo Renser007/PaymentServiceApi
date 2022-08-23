@@ -7,10 +7,8 @@ import lombok.*;
 @Setter(AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class OpenPaymentRequest implements OperationInput {
+public class CheckPaymentRequest implements OperationInput {
 
-    private Double cost;
-    private String label;
-    private String email;
+    private String uuid;
 
 }
